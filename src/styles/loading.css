@@ -1,0 +1,9 @@
+/**
+ * Estados de carga
+ */
+.loading {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-muted);
+    font-size: 1.2rem;
+}

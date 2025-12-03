@@ -1,0 +1,45 @@
+/**
+ * Variables CSS globales
+ */
+:root {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    /* Colores principales */
+    --primary-color: #646cff;
+    --success-color: #4caf50;
+    --danger-color: #f44336;
+    --secondary-color: #555;
+    
+    /* Backgrounds */
+    --bg-card: #2a2a2a;
+    --bg-input: #1a1a1a;
+    --bg-gradient-start: #1a1a1a;
+    --bg-gradient-end: #2d2d2d;
+    
+    /* Borders */
+    --border-color: #404040;
+    
+    /* Text colors */
+    --text-primary: rgba(255, 255, 255, 0.87);
+    --text-secondary: #ccc;
+    --text-muted: #999;
+    
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    
+    /* Border radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
+    
+    color: var(--text-primary);
+    background-color: #242424;
+}

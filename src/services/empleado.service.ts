@@ -1,42 +1,58 @@
-import type { Empleado, CreateEmpleadoDTO, UpdateEmpleadoDTO } from '../models/empleado.model';
+import type { Empleado, CreateEmpleadoDTO, UpdateEmpleadoDTO, ApiError } from '../interfaces';
+import { API_CONFIG, HTTP_STATUS } from '../constants';
 
-// Configuración de la API
-const API_BASE_URL = 'http://localhost:5010/api';
-
+/**
+ * Servicio para gestionar las operaciones de empleados con la API
+ */
 export class EmpleadoService {
-    
-    // Obtener todos los empleados (SQL)
+    private readonly baseUrl: string;
+
+    constructor() {
+        this.baseUrl = API_CONFIG.BASE_URL;
+    }
+
+    /**
+     * Obtiene todos los empleados
+     */
     async getEmpleados(): Promise<Empleado[]> {
         try {
-            const response = await fetch(`${API_BASE_URL}/EmpleadoSQL`);
+            const response = await fetch(`${this.baseUrl}${API_CONFIG.ENDPOINTS.EMPLEADOS}`);
+            
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                throw this.createError(response.status, 'Error al obtener empleados');
             }
+            
             return await response.json();
         } catch (error) {
-            console.error('Error al obtener empleados:', error);
-            throw error;
+            throw this.handleError(error, 'Error al cargar la lista de empleados');
         }
     }
 
-    // Obtener empleado por código
+    /**
+     * Obtiene un empleado por código
+     */
     async getEmpleadoByCodigo(codigo: string): Promise<Empleado> {
         try {
-            const response = await fetch(`${API_BASE_URL}/EmpleadoSQL/${codigo}`);
+            const response = await fetch(
+                `${this.baseUrl}${API_CONFIG.ENDPOINTS.EMPLEADO_BY_CODIGO(codigo)}`
+            );
+            
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                throw this.createError(response.status, 'Empleado no encontrado');
             }
+            
             return await response.json();
         } catch (error) {
-            console.error('Error al obtener empleado:', error);
-            throw error;
+            throw this.handleError(error, 'Error al buscar el empleado');
         }
     }
 
-    // Crear nuevo empleado
+    /**
+     * Crea un nuevo empleado
+     */
     async createEmpleado(empleadoDTO: CreateEmpleadoDTO): Promise<Empleado> {
         try {
-            const response = await fetch(`${API_BASE_URL}/EmpleadoSQL`, {
+            const response = await fetch(`${this.baseUrl}${API_CONFIG.ENDPOINTS.EMPLEADOS}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -45,58 +61,110 @@ export class EmpleadoService {
             });
             
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                const errorText = await response.text();
+                throw this.createError(response.status, errorText || 'Error al crear empleado');
             }
+            
             return await response.json();
         } catch (error) {
-            console.error('Error al crear empleado:', error);
-            throw error;
+            throw this.handleError(error, 'Error al crear el empleado');
         }
     }
 
-    // Actualizar empleado
+    /**
+     * Actualiza un empleado existente
+     */
     async updateEmpleado(id: number, empleadoDTO: UpdateEmpleadoDTO): Promise<Empleado> {
         try {
-            console.log('UPDATE - ID:', id, 'DTO:', empleadoDTO);
-            const response = await fetch(`${API_BASE_URL}/EmpleadoSQL/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(empleadoDTO)
-            });
-            
-            console.log('Response status:', response.status);
-            const responseText = await response.text();
-            console.log('Response text:', responseText);
+            const response = await fetch(
+                `${this.baseUrl}${API_CONFIG.ENDPOINTS.EMPLEADO_BY_ID(id)}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(empleadoDTO)
+                }
+            );
             
             if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${responseText}`);
+                const errorText = await response.text();
+                throw this.createError(response.status, errorText || 'Error al actualizar empleado');
             }
             
+            const responseText = await response.text();
             return responseText ? JSON.parse(responseText) : {} as Empleado;
         } catch (error) {
-            console.error('Error al actualizar empleado:', error);
-            throw error;
+            throw this.handleError(error, 'Error al actualizar el empleado');
         }
     }
 
-    // Eliminar empleado (soft delete)
+    /**
+     * Elimina un empleado (soft delete)
+     */
     async deleteEmpleado(codigo: string): Promise<void> {
         try {
-            const response = await fetch(`${API_BASE_URL}/EmpleadoSQL/${codigo}`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(
+                `${this.baseUrl}${API_CONFIG.ENDPOINTS.EMPLEADO_BY_CODIGO(codigo)}`,
+                {
+                    method: 'DELETE'
+                }
+            );
             
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                throw this.createError(response.status, 'Error al eliminar empleado');
             }
         } catch (error) {
-            console.error('Error al eliminar empleado:', error);
-            throw error;
+            throw this.handleError(error, 'Error al eliminar el empleado');
+        }
+    }
+
+    /**
+     * Crea un objeto de error personalizado
+     */
+    private createError(status: number, message: string): ApiError {
+        return {
+            status,
+            message,
+            details: this.getErrorDetails(status)
+        };
+    }
+
+    /**
+     * Maneja errores y los convierte en mensajes legibles
+     */
+    private handleError(error: unknown, defaultMessage: string): Error {
+        if (error instanceof Error) {
+            return error;
+        }
+        
+        if (typeof error === 'object' && error !== null && 'message' in error) {
+            return new Error((error as ApiError).message);
+        }
+        
+        return new Error(defaultMessage);
+    }
+
+    /**
+     * Obtiene detalles del error según el código de estado HTTP
+     */
+    private getErrorDetails(status: number): string {
+        switch (status) {
+            case HTTP_STATUS.BAD_REQUEST:
+                return 'Los datos enviados no son válidos';
+            case HTTP_STATUS.UNAUTHORIZED:
+                return 'No autorizado';
+            case HTTP_STATUS.FORBIDDEN:
+                return 'Acceso prohibido';
+            case HTTP_STATUS.NOT_FOUND:
+                return 'Recurso no encontrado';
+            case HTTP_STATUS.INTERNAL_SERVER_ERROR:
+                return 'Error interno del servidor';
+            default:
+                return 'Error desconocido';
         }
     }
 }
 
-// Exportar una instancia del servicio
+// Instancia singleton del servicio
 export const empleadoService = new EmpleadoService();
