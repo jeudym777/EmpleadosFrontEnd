@@ -5,7 +5,7 @@ import { ICONS } from '../constants';
  */
 export const headerTemplate = (): string => `
     <div class="header">
-        <h1>${ICONS.ROCKET} Gestión de Empleados</h1>
-        <p>Sistema completo de administración con TypeScript + C# + SQL Server</p>
+        <h1>Gestión de Empleados</h1>
+        <p>Sistema de Gestión de Empleados</p>
     </div>
 `;
