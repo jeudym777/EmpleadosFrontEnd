@@ -4,3 +4,4 @@
 export * from './alert.component';
 export * from './table.component';
 export * from './form.component';
+export * from './confirm-modal.component';

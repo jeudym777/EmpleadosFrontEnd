@@ -4,9 +4,9 @@
 export const API_CONFIG = {
     BASE_URL: 'http://localhost:5010/api',
     ENDPOINTS: {
-        EMPLEADOS: '/EmpleadoSQL',
-        EMPLEADO_BY_ID: (id: number) => `/EmpleadoSQL/${id}`,
-        EMPLEADO_BY_CODIGO: (codigo: string) => `/EmpleadoSQL/${codigo}`,
+        EMPLEADOS: '/Empleados',
+        EMPLEADO_BY_ID: (id: number) => `/Empleados/${id}`,
+        EMPLEADO_BY_CODIGO: (codigo: string) => `/Empleados/${codigo}`,
     },
     TIMEOUT: 30000, // 30 segundos
 } as const;

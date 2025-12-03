@@ -1,6 +1,6 @@
 import type { Empleado, CreateEmpleadoDTO, UpdateEmpleadoDTO } from '../interfaces';
 import { empleadoService } from '../services/empleado.service';
-import { Alert, Table, Form } from './shared';
+import { Alert, Table, Form, confirmModal } from './shared';
 import { headerTemplate, tableCardTemplate } from '../templates';
 import { MESSAGES } from '../constants';
 
@@ -146,16 +146,23 @@ export class EmpleadosCRUD {
      * Elimina un empleado
      */
     private async eliminarEmpleado(codigo: string): Promise<void> {
-        if (!confirm(MESSAGES.CONFIRM.DELETE)) return;
-
-        try {
-            await empleadoService.deleteEmpleado(codigo);
-            this.alert.show(MESSAGES.SUCCESS.DELETE, 'success');
-            await this.cargarEmpleados();
-        } catch (error) {
-            this.alert.show(MESSAGES.ERROR.DELETE, 'error');
-            console.error('Error al eliminar:', error);
-        }
+        confirmModal.show({
+            title: MESSAGES.CONFIRM.DELETE_TITLE,
+            message: MESSAGES.CONFIRM.DELETE_MESSAGE,
+            confirmText: MESSAGES.CONFIRM.DELETE_CONFIRM,
+            cancelText: MESSAGES.CONFIRM.DELETE_CANCEL,
+            confirmClass: 'btn-danger',
+            onConfirm: async () => {
+                try {
+                    await empleadoService.deleteEmpleado(codigo);
+                    this.alert.show(MESSAGES.SUCCESS.DELETE, 'success');
+                    await this.cargarEmpleados();
+                } catch (error) {
+                    this.alert.show(MESSAGES.ERROR.DELETE, 'error');
+                    console.error('Error al eliminar:', error);
+                }
+            }
+        });
     }
 
     /**

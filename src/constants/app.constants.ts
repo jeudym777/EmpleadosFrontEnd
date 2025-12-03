@@ -34,7 +34,10 @@ export const MESSAGES = {
         GENERIC: 'Ha ocurrido un error inesperado',
     },
     CONFIRM: {
-        DELETE: '¿Estás seguro de que deseas eliminar este empleado?',
+        DELETE_TITLE: '⚠️ Confirmar Eliminación',
+        DELETE_MESSAGE: '¿Estás seguro de que deseas eliminar este empleado? Esta acción no se puede deshacer.',
+        DELETE_CONFIRM: '🗑️ Sí, Eliminar',
+        DELETE_CANCEL: 'Cancelar',
     },
     EMPTY: {
         NO_EMPLEADOS: 'No hay empleados registrados',
